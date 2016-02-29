@@ -26,12 +26,15 @@ public class HeroController : MonoBehaviour {
     private float _jump;
     private bool _facingRight;
     private bool _isGrounded;
+    
 
     //PUBLIC INSTANCE VARIABLES
     public VelocityRange velocityRange;
     public float moveForce;
     public float jumpForce;
     public Transform groundCheck;
+    public Transform camera;
+    public GameController gameController;
 
 	// Use this for initialization
 	void Start () {
@@ -45,11 +48,15 @@ public class HeroController : MonoBehaviour {
         this._move = 0f;
         this._jump = 0f;
         this.moveForce = 1000f;
-        this.jumpForce = 20000f;
+        this.jumpForce = 30000f;
+        this._spawn();
     }
 	
 	// Update is called once per frame
 	void FixedUpdate () {
+        Vector3 currentCamPos = new Vector3(this._transform.position.x + 140, -56.41403f, -10);
+        this.camera.position = currentCamPos;
+
         //check whether the player is grounded or not
         this._isGrounded = Physics2D.Linecast(this._transform.position, this.groundCheck.position, 1 << LayerMask.NameToLayer("Ground"));
         Debug.DrawLine(this._transform.position, this.groundCheck.position);
@@ -114,9 +121,31 @@ public class HeroController : MonoBehaviour {
             this._anim.SetInteger("AnimState", 2);
         }
 
-        Debug.Log(forceX);
+       // Debug.Log(forceX);
         this._rigidBody2D.AddForce(new Vector2(forceX, forceY));
+
+        if(this._transform.position.x < -402)
+        {
+            this.camera.position = new Vector3(-254.9157f, -56.41403f, -10);
+        }
+        if (this._transform.position.x < -908.4078f)
+        {
+            this._transform.position = new Vector2(-908.4078f, -256.414f);
+        }
 	}
+
+    
+
+    void OnCollisionEnter2D(Collision2D other)
+    {
+        if (other.gameObject.CompareTag("Death"))
+        {
+            
+            this._spawn();
+            this.gameController.LivesValues--;
+        }
+    }
+
     //PRIVATE METHODS
 
     //Flips the player object on X-Axis
@@ -130,5 +159,12 @@ public class HeroController : MonoBehaviour {
         {
             this._transform.localScale = new Vector2(-1, 1);
         }
+    }
+
+    private void _spawn()
+    {
+
+        this._transform.position = new Vector3(-402, -256, 0);
+        this._facingRight = true;
     }
 }
