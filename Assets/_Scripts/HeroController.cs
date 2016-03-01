@@ -26,6 +26,11 @@ public class HeroController : MonoBehaviour {
     private float _jump;
     private bool _facingRight;
     private bool _isGrounded;
+    private AudioSource[] _audioSources;
+    private AudioSource _jumpSound;
+    private AudioSource _fall;
+    private AudioSource _coinSound;
+    private AudioSource _clearLevel;
     
 
     //PUBLIC INSTANCE VARIABLES
@@ -35,6 +40,7 @@ public class HeroController : MonoBehaviour {
     public Transform groundCheck;
     public Transform camera;
     public GameController gameController;
+    public HeroController hero;
 
 	// Use this for initialization
 	void Start () {
@@ -49,6 +55,11 @@ public class HeroController : MonoBehaviour {
         this._jump = 0f;
         this.moveForce = 1000f;
         this.jumpForce = 30000f;
+        this._audioSources = gameObject.GetComponents<AudioSource>();
+        this._jumpSound = this._audioSources[0];
+        this._coinSound = this._audioSources[3];
+        this._clearLevel = this._audioSources[1];
+        this._fall = this._audioSources[2];
         this._spawn();
     }
 	
@@ -58,7 +69,9 @@ public class HeroController : MonoBehaviour {
         this.camera.position = currentCamPos;
 
         //check whether the player is grounded or not
-        this._isGrounded = Physics2D.Linecast(this._transform.position, this.groundCheck.position, 1 << LayerMask.NameToLayer("Ground"));
+        this._isGrounded = Physics2D.Linecast(this._transform.position, 
+            this.groundCheck.position, 1 
+            << LayerMask.NameToLayer("Ground"));
         Debug.DrawLine(this._transform.position, this.groundCheck.position);
 
         float forceX = 0f;
@@ -108,6 +121,7 @@ public class HeroController : MonoBehaviour {
             }
             if (this._jump > 0)
             {
+                this._jumpSound.Play();
                 //Jump Force
                 if (absVelY < this.velocityRange.maximum)
                 {
@@ -138,12 +152,39 @@ public class HeroController : MonoBehaviour {
 
     void OnCollisionEnter2D(Collision2D other)
     {
+        if (other.gameObject.CompareTag("Coin"))
+        {
+            Destroy(other.gameObject);
+            this._coinSound.Play();
+            this.gameController.ScoreValues += 10;
+        }
+
         if (other.gameObject.CompareTag("Death"))
         {
-            
+            this._fall.Play();
             this._spawn();
             this.gameController.LivesValues--;
+            if (this.gameController.LivesValues <= 0)
+            {
+                Destroy(gameObject);
+            }
         }
+
+        if (other.gameObject.CompareTag("Ghost"))
+        {
+            this._fall.Play();
+            this._transform.position = new Vector3(3363, 46.32789f, 0);
+            this.gameController.LivesValues--;
+
+        }
+
+        if (other.gameObject.CompareTag("Door"))
+        {
+            this._clearLevel.Play();
+            Destroy(gameObject);
+            this.gameController.levelClear();
+        }
+
     }
 
     //PRIVATE METHODS

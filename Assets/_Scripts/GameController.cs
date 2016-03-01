@@ -16,23 +16,25 @@ public class GameController : MonoBehaviour {
     //PRIVATE INSTANCE VARIABLES
     private int _scoreValues;
     private int _livesValues;
-    //[SerializeField] //SERIALIZED FIELDS TO BE ACCESSED IN INSPECTOR
-    //private AudioSource _gameOverSound;
+    [SerializeField]
+    private AudioSource _gameOverSound;
     //[SerializeField]
-    //private AudioSource _skySound; 
-   
+    //private AudioSource _backSound;
 
 
     //PUBLIC INSTANCE VARIABLES
-    
+
     public Text ScoreLabel;
     public Text LivesLabel;
     public Text GameOverLabel;
-    public Text HighScoreLabel;
     public Button StartButton;
     public Button RestartButton;
     public Button QuitButton;
     public HeroController heroController;
+    public Text StartLogo;
+    public Text GameBy;
+    public Text welldone;
+    
 
     public int ScoreValues
     {
@@ -71,6 +73,7 @@ public class GameController : MonoBehaviour {
     }
 	// Use this for initialization
 	void Start () {
+        
         this._hideAll();
 	}
 	
@@ -88,12 +91,22 @@ public class GameController : MonoBehaviour {
     //PRIVATE METHODS
     private void _init()
     {
+
+
         this.ScoreValues = 0;
         this.LivesValues = 5;
-        this.HighScoreLabel.enabled = false;
         this.GameOverLabel.enabled = false;
         //this._gameOverSound.Stop();
         this.RestartButton.gameObject.SetActive(false);
+        this.heroController.gameObject.SetActive(true);
+        this.LivesLabel.enabled = true;
+        this.ScoreLabel.enabled = true;
+        this.GameOverLabel.enabled = false;
+        this.StartButton.gameObject.SetActive(false);
+        this.QuitButton.gameObject.SetActive(false);
+        this.StartLogo.enabled = false;
+        this.GameBy.enabled = false;
+        this.welldone.enabled = false;
 
 
 
@@ -102,15 +115,14 @@ public class GameController : MonoBehaviour {
     //CALLED WHEN LIVES GET TO 0
     private void _endGame()
     {
-        //this.HighScoreLabel.text = "HighScore: "+ this._scoreValues;
         this.LivesLabel.enabled = false;
         this.ScoreLabel.enabled = false;
         this.GameOverLabel.enabled = true;
-        this.HighScoreLabel.enabled = true;
-       
-        //this._gameOverSound.Play();
-        //this._skySound.Stop();
+        this.heroController.gameObject.SetActive(false);
+        this._gameOverSound.Play();
+        //this._backSound.Stop();
         this.RestartButton.gameObject.SetActive(true);
+        this.QuitButton.gameObject.SetActive(true);
     }
 
 
@@ -122,6 +134,32 @@ public class GameController : MonoBehaviour {
 
     private void _hideAll()
     {
+        this.heroController.gameObject.SetActive(false);
+        this.StartLogo.enabled = true;
+        this.GameBy.enabled = true;
+        this.LivesLabel.enabled = false;
+        this.ScoreLabel.enabled = false;
+        this.GameOverLabel.enabled = false;
+        this.StartButton.gameObject.SetActive(true);
+        this.RestartButton.gameObject.SetActive(false);
+        this.QuitButton.gameObject.SetActive(true);
+        this.welldone.enabled = false;
+    }
 
+    public void levelClear()
+    {
+        this.welldone.enabled = true;
+        this.LivesLabel.enabled = false;
+        this.ScoreLabel.enabled = false;
+        this.RestartButton.gameObject.SetActive(true);
+        this.QuitButton.gameObject.SetActive(true);
+        //this._backSound.Stop();
+        
+    }
+
+
+    public void  quit()
+    {
+        Application.Quit();
     }
 }
